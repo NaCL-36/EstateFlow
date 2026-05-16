@@ -1,1 +1,154 @@
+{% extends "base.html" %}
 
+{% block title %}Manage Inquiries - EstateFlow{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <nav class="admin-sidebar bg-dark">
+        <div class="sidebar-header py-4 px-3 border-bottom">
+            <h5 class="fw-bold text-white mb-0"><i class="fas fa-th-list me-2"></i> Admin</h5>
+        </div>
+        <ul class="nav nav-pills flex-column mt-3 px-2">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_properties') }}"><i class="fas fa-home me-2"></i> Properties</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.add_property') }}"><i class="fas fa-plus me-2"></i> Add Property</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{ url_for('admin.manage_inquiries') }}"><i class="fas fa-envelope me-2"></i> Inquiries</a></li>
+        </ul>
+    </nav>
+
+    <main class="admin-content">
+        <div class="container-fluid py-5">
+            <h2 class="fw-bold mb-4">
+                <i class="fas fa-envelope me-2 text-gold"></i> Manage Inquiries
+            </h2>
+
+            <div class="card">
+                <div class="card-header bg-light border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Inquiries List</h5>
+                        <div>
+                            {% if status_filter %}
+                            <span class="badge bg-info">{{ status_filter }}</span>
+                            <a href="{{ url_for('admin.manage_inquiries') }}" class="btn btn-sm btn-outline-secondary">Clear Filter</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if inquiries %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Property</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inquiry in inquiries %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ inquiry.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:{{ inquiry.email }}">{{ inquiry.email }}</a>
+                                    </td>
+                                    <td>
+                                        <a href="tel:{{ inquiry.phone }}">{{ inquiry.phone }}</a>
+                                    </td>
+                                    <td>{{ inquiry.property.title }}</td>
+                                    <td>
+                                        <form action="{{ url_for('admin.update_inquiry_status', inquiry_id=inquiry.id, status='') }}" method="POST" style="display: inline;" onchange="this.form.action = this.form.action.replace(/status=.*/, 'status=' + this.value); this.form.submit();">
+                                            <select class="form-select form-select-sm" style="width: 150px;">
+                                                <option value="{{ inquiry.status }}" selected>{{ inquiry.status }}</option>
+                                                {% for status in inquiry.INQUIRY_STATUSES %}
+                                                    {% if status != inquiry.status %}
+                                                    <option value="{{ status }}">{{ status }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>{{ inquiry.created_at.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#inquiryModal{{ inquiry.id }}">
+                                            View
+                                        </button>
+                                        <form action="{{ url_for('admin.delete_inquiry', inquiry_id=inquiry.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this inquiry?');">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+
+                                <!-- Inquiry Modal -->
+                                <div class="modal fade" id="inquiryModal{{ inquiry.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Inquiry from {{ inquiry.name }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p><strong>Name:</strong> {{ inquiry.name }}</p>
+                                                <p><strong>Email:</strong> <a href="mailto:{{ inquiry.email }}">{{ inquiry.email }}</a></p>
+                                                <p><strong>Phone:</strong> <a href="tel:{{ inquiry.phone }}">{{ inquiry.phone }}</a></p>
+                                                <p><strong>Property:</strong> {{ inquiry.property.title }}</p>
+                                                <p><strong>Date:</strong> {{ inquiry.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                                <p><strong>Status:</strong> <span class="badge bg-info">{{ inquiry.status }}</span></p>
+                                                <hr>
+                                                <h6>Message:</h6>
+                                                <p>{{ inquiry.message }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if pages > 1 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mt-4">
+                            {% if page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.manage_inquiries', page=page-1, status=status_filter) }}">Previous</a>
+                            </li>
+                            {% endif %}
+
+                            {% for p in range(1, pages + 1) %}
+                            <li class="page-item {% if p == page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin.manage_inquiries', page=p, status=status_filter) }}">{{ p }}</a>
+                            </li>
+                            {% endfor %}
+
+                            {% if page < pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.manage_inquiries', page=page+1, status=status_filter) }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    {% else %}
+                    <div class="alert alert-info text-center py-5" role="alert">
+                        <h5>No inquiries found</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Properties - EstateFlow{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <nav class="admin-sidebar bg-dark">
+        <div class="sidebar-header py-4 px-3 border-bottom">
+            <h5 class="fw-bold text-white mb-0"><i class="fas fa-th-list me-2"></i> Admin</h5>
+        </div>
+        <ul class="nav nav-pills flex-column mt-3 px-2">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{ url_for('admin.manage_properties') }}"><i class="fas fa-home me-2"></i> Properties</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.add_property') }}"><i class="fas fa-plus me-2"></i> Add Property</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_inquiries') }}"><i class="fas fa-envelope me-2"></i> Inquiries</a></li>
+        </ul>
+    </nav>
+
+    <main class="admin-content">
+        <div class="container-fluid py-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-home me-2 text-gold"></i> Manage Properties
+                </h2>
+                <a href="{{ url_for('admin.add_property') }}" class="btn btn-gold">
+                    <i class="fas fa-plus me-2"></i> Add New Property
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">Properties List</h5>
+                </div>
+                <div class="card-body">
+                    {% if properties %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Location</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Beds/Baths</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for property in properties %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ property.title }}</strong>
+                                    </td>
+                                    <td>{{ property.location }}</td>
+                                    <td>{{ property.property_type }}</td>
+                                    <td>${{ "%.2f"|format(property.price) }}</td>
+                                    <td>{{ property.bedrooms }}/{{ property.bathrooms }}</td>
+                                    <td>
+                                        <span class="badge {% if property.status == 'available' %}bg-success{% elif property.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ property.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('main.property_details', property_id=property.id) }}" class="btn btn-sm btn-info" target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin.edit_property', property_id=property.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="{{ url_for('admin.delete_property', property_id=property.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this property?');">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if pages > 1 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mt-4">
+                            {% if page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.manage_properties', page=page-1) }}">Previous</a>
+                            </li>
+                            {% endif %}
+
+                            {% for p in range(1, pages + 1) %}
+                            <li class="page-item {% if p == page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin.manage_properties', page=p) }}">{{ p }}</a>
+                            </li>
+                            {% endfor %}
+
+                            {% if page < pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.manage_properties', page=page+1) }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    {% else %}
+                    <div class="alert alert-info text-center py-5" role="alert">
+                        <h5>No properties yet</h5>
+                        <a href="{{ url_for('admin.add_property') }}" class="btn btn-gold mt-3">Add Your First Property</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

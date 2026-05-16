@@ -1,1 +1,108 @@
+{% extends "base.html" %}
 
+{% block title %}Edit Property - EstateFlow{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <nav class="admin-sidebar bg-dark">
+        <div class="sidebar-header py-4 px-3 border-bottom">
+            <h5 class="fw-bold text-white mb-0"><i class="fas fa-th-list me-2"></i> Admin</h5>
+        </div>
+        <ul class="nav nav-pills flex-column mt-3 px-2">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{ url_for('admin.manage_properties') }}"><i class="fas fa-home me-2"></i> Properties</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.add_property') }}"><i class="fas fa-plus me-2"></i> Add Property</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_inquiries') }}"><i class="fas fa-envelope me-2"></i> Inquiries</a></li>
+        </ul>
+    </nav>
+
+    <main class="admin-content">
+        <div class="container-fluid py-5">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-light border-bottom">
+                            <h4 class="mb-0 fw-bold"><i class="fas fa-edit me-2 text-gold"></i> Edit Property</h4>
+                        </div>
+                        <div class="card-body p-5">
+                            <form action="{{ url_for('admin.edit_property', property_id=property.id) }}" method="POST" enctype="multipart/form-data">
+                                <div class="mb-4">
+                                    <label for="title" class="form-label fw-bold">Property Title</label>
+                                    <input type="text" class="form-control form-control-lg" id="title" name="title" value="{{ property.title }}">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="description" class="form-label fw-bold">Description</label>
+                                    <textarea class="form-control form-control-lg" id="description" name="description" rows="6">{{ property.description }}</textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label for="price" class="form-label fw-bold">Price</label>
+                                        <input type="number" step="0.01" class="form-control form-control-lg" id="price" name="price" value="{{ property.price }}">
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label for="location" class="form-label fw-bold">Location</label>
+                                        <input type="text" class="form-control form-control-lg" id="location" name="location" value="{{ property.location }}">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label for="property_type" class="form-label fw-bold">Property Type</label>
+                                        <select class="form-select form-select-lg" id="property_type" name="property_type">
+                                            <option value="{{ property.property_type }}" selected>{{ property.property_type }}</option>
+                                            <option>House</option>
+                                            <option>Apartment</option>
+                                            <option>Condo</option>
+                                            <option>Townhouse</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label for="status" class="form-label fw-bold">Status</label>
+                                        <select class="form-select form-select-lg" id="status" name="status">
+                                            <option value="available" {% if property.status == 'available' %}selected{% endif %}>Available</option>
+                                            <option value="sold" {% if property.status == 'sold' %}selected{% endif %}>Sold</option>
+                                            <option value="pending" {% if property.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-4">
+                                        <label for="bedrooms" class="form-label fw-bold">Bedrooms</label>
+                                        <input type="number" class="form-control form-control-lg" id="bedrooms" name="bedrooms" value="{{ property.bedrooms }}">
+                                    </div>
+                                    <div class="col-md-4 mb-4">
+                                        <label for="bathrooms" class="form-label fw-bold">Bathrooms</label>
+                                        <input type="number" step="0.5" class="form-control form-control-lg" id="bathrooms" name="bathrooms" value="{{ property.bathrooms }}">
+                                    </div>
+                                    <div class="col-md-4 mb-4">
+                                        <label for="area" class="form-label fw-bold">Area (sqft)</label>
+                                        <input type="number" step="0.01" class="form-control form-control-lg" id="area" name="area" value="{{ property.area }}">
+                                    </div>
+                                </div>
+
+                                <div class="mb-5">
+                                    <label for="featured_image" class="form-label fw-bold">Featured Image</label>
+                                    {% if property.featured_image %}
+                                    <div class="mb-3">
+                                        <img src="{{ url_for('static', filename='uploads/' + property.featured_image) }}" alt="{{ property.title }}" style="max-width: 200px;">
+                                    </div>
+                                    {% endif %}
+                                    <input type="file" class="form-control form-control-lg" id="featured_image" name="featured_image" accept="image/*">
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-gold btn-lg"><i class="fas fa-save me-2"></i> Update Property</button>
+                                    <a href="{{ url_for('admin.manage_properties') }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

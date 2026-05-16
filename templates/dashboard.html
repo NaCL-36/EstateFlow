@@ -1,1 +1,242 @@
+{% extends "base.html" %}
 
+{% block title %}Admin Dashboard - EstateFlow{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Admin Sidebar -->
+    <nav class="admin-sidebar bg-dark">
+        <div class="sidebar-header py-4 px-3 border-bottom">
+            <h5 class="fw-bold text-white mb-0">
+                <i class="fas fa-th-list me-2"></i> Admin Panel
+            </h5>
+        </div>
+
+        <ul class="nav nav-pills flex-column mt-3 px-2">
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">
+                    <i class="fas fa-chart-line me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.manage_properties') }}">
+                    <i class="fas fa-home me-2"></i> Manage Properties
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.add_property') }}">
+                    <i class="fas fa-plus me-2"></i> Add Property
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.manage_inquiries') }}">
+                    <i class="fas fa-envelope me-2"></i> Inquiries
+                </a>
+            </li>
+            <li class="nav-item mt-4 border-top pt-3">
+                <a class="nav-link" href="{{ url_for('main.index') }}">
+                    <i class="fas fa-eye me-2"></i> View Website
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.logout') }}">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold mb-5">Dashboard</h1>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-5">
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary">
+                            <i class="fas fa-home fa-2x"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h6 class="text-muted">Total Properties</h6>
+                            <h2 class="fw-bold">{{ total_properties }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-success">
+                            <i class="fas fa-envelope fa-2x"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h6 class="text-muted">Total Inquiries</h6>
+                            <h2 class="fw-bold">{{ total_inquiries }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-warning">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h6 class="text-muted">New Inquiries</h6>
+                            <h2 class="fw-bold">{{ new_inquiries }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-danger">
+                            <i class="fas fa-chart-bar fa-2x"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h6 class="text-muted">Conversion Rate</h6>
+                            <h2 class="fw-bold">
+                                {% if total_properties > 0 %}
+                                    {{ ((total_inquiries / total_properties) * 100)|int }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-5">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <a href="{{ url_for('admin.add_property') }}" class="btn btn-primary me-2">
+                                <i class="fas fa-plus me-2"></i> Add New Property
+                            </a>
+                            <a href="{{ url_for('admin.manage_properties') }}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-list me-2"></i> Manage Properties
+                            </a>
+                            <a href="{{ url_for('admin.manage_inquiries') }}" class="btn btn-outline-success">
+                                <i class="fas fa-inbox me-2"></i> View All Inquiries
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Inquiries -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0 fw-bold">Recent Inquiries</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_inquiries %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Property</th>
+                                            <th>Email</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for inquiry in recent_inquiries %}
+                                        <tr>
+                                            <td><strong>{{ inquiry.name }}</strong></td>
+                                            <td>{{ inquiry.property.title }}</td>
+                                            <td>{{ inquiry.email }}</td>
+                                            <td>
+                                                <span class="badge bg-info">{{ inquiry.status }}</span>
+                                            </td>
+                                            <td>{{ inquiry.created_at.strftime('%b %d, %Y') }}</td>
+                                            <td>
+                                                <a href="{{ url_for('admin.manage_inquiries') }}" class="btn btn-sm btn-outline-primary">
+                                                    View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center py-4">No inquiries yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-wrapper {
+        display: flex;
+        min-height: calc(100vh - 56px);
+    }
+
+    .admin-sidebar {
+        width: 250px;
+        position: fixed;
+        left: 0;
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+        margin-top: 56px;
+    }
+
+    .admin-content {
+        margin-left: 250px;
+        flex: 1;
+        background: #f8f9fa;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .admin-sidebar {
+            width: 200px;
+        }
+
+        .admin-content {
+            margin-left: 200px;
+        }
+    }
+</style>
+{% endblock %}

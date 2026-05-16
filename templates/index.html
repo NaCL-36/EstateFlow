@@ -1,1 +1,134 @@
+{% extends "base.html" %}
 
+{% block title %}EstateFlow - Premium Real Estate Listings{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section d-flex align-items-center justify-content-center">
+    <div class="hero-overlay"></div>
+    <div class="hero-content text-center text-white">
+        <h1 class="display-3 fw-bold mb-4">Find Your Dream Property</h1>
+        <p class="lead mb-5">Discover premium real estate listings and invest in your future</p>
+        <div class="search-box">
+            <form action="{{ url_for('main.properties') }}" method="GET" class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control form-control-lg" placeholder="Search properties...">
+                </div>
+                <div class="col-md-4">
+                    <select name="city" class="form-select form-select-lg">
+                        <option value="">All Cities</option>
+                        <option value="New York">New York</option>
+                        <option value="Austin">Austin</option>
+                        <option value="Miami">Miami</option>
+                        <option value="Chicago">Chicago</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-gold btn-lg w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Properties -->
+<section class="py-5 bg-light-gray">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Featured Properties</h2>
+            <p class="text-muted">Handpicked premium properties for discerning buyers</p>
+        </div>
+
+        <div class="row g-4">
+            {% for property in featured_properties %}
+            <div class="col-md-6 col-lg-4">
+                <div class="property-card h-100">
+                    <div class="property-image-container">
+                        {% if property.featured_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + property.featured_image) }}"
+                             alt="{{ property.title }}" class="property-image">
+                        {% else %}
+                        <div class="property-image-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        {% endif %}
+                        <span class="property-badge">{{ property.property_type }}</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ property.title }}</h5>
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-map-marker-alt text-gold"></i> {{ property.location }}
+                        </p>
+                        <div class="property-features mb-3">
+                            <span class="feature-badge">
+                                <i class="fas fa-door-open"></i> {{ property.bedrooms }} Beds
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-bath"></i> {{ property.bathrooms }} Baths
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-ruler"></i> {{ property.area }} sqft
+                            </span>
+                        </div>
+                        <h4 class="text-gold mb-3">${{ "%.2f"|format(property.price) }}</h4>
+                        <a href="{{ url_for('main.property_details', property_id=property.id) }}"
+                           class="btn btn-gold w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{{ url_for('main.properties') }}" class="btn btn-lg btn-outline-dark">
+                Browse All Properties <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Why Choose EstateFlow</h2>
+            <p class="text-muted">Premium service for discerning property seekers</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="feature-box mb-4">
+                    <i class="fas fa-home text-gold fa-3x mb-3"></i>
+                    <h5>Premium Selection</h5>
+                    <p class="text-muted">Carefully curated properties that meet the highest standards</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-box mb-4">
+                    <i class="fas fa-handshake text-gold fa-3x mb-3"></i>
+                    <h5>Expert Support</h5>
+                    <p class="text-muted">Dedicated team to guide you through every step</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-box mb-4">
+                    <i class="fas fa-lock text-gold fa-3x mb-3"></i>
+                    <h5>Secure Transactions</h5>
+                    <p class="text-muted">All transactions handled with utmost confidentiality</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="bg-dark text-white py-5">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-3">Ready to Find Your Perfect Home?</h2>
+        <p class="lead mb-5">Start exploring our exclusive property listings today</p>
+        <a href="{{ url_for('main.properties') }}" class="btn btn-gold btn-lg">
+            <i class="fas fa-search me-2"></i> Browse Properties
+        </a>
+    </div>
+</section>
+{% endblock %}
