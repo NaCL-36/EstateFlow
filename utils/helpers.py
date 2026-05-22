@@ -11,8 +11,12 @@ def save_picture(file):
     """Save uploaded picture and return filename."""
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        try:
+            os.makedirs(upload_folder, exist_ok=True)
+        except OSError:
+            pass
+        filepath = os.path.join(upload_folder, filename)
         file.save(filepath)
         return filename
     return None

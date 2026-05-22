@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template
 from flask_login import LoginManager
 from config import config
-from models import db, User, Property, Inquiry
+from models import db, User, Property
 from utils.email_service import mail
 from routes.main_routes import main_bp
 from routes.admin_routes import admin_bp
